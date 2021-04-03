@@ -1,2 +1,4 @@
 # Project exclude paths
 /out/
+/.idea/
+/src/sample/icon.png

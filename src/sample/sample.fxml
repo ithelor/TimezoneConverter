@@ -21,7 +21,7 @@
       <Pane prefHeight="40.0" prefWidth="400.0" BorderPane.alignment="CENTER" />
    </bottom>
    <right>
-      <ScrollPane prefHeight="320.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="scrollPane" prefHeight="320.0" prefWidth="160.0" BorderPane.alignment="CENTER">
          <content>
             <AnchorPane fx:id="spAnchorPane" />
          </content>
