@@ -6,14 +6,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 
-<BorderPane prefHeight="400.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
-   <center>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="CENTER" layoutX="289.0" layoutY="152.0" text="Map Expected..." />
-         </children>
-      </Pane>
-   </center>
+<BorderPane fx:id="borderPane" prefHeight="400.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <top>
       <Pane prefHeight="40.0" prefWidth="400.0" BorderPane.alignment="CENTER" />
    </top>
@@ -27,4 +20,7 @@
          </content>
       </ScrollPane>
    </right>
+   <center>
+      <Label alignment="CENTER" text="Map Expected..." BorderPane.alignment="CENTER" />
+   </center>
 </BorderPane>

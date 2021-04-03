@@ -3,20 +3,18 @@ package sample;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -24,16 +22,26 @@ import java.util.TimeZone;
 
 public class Controller {
 
-    @FXML GridPane gridPane;
+    @FXML BorderPane borderPane;
     @FXML ScrollPane scrollPane;
     @FXML AnchorPane spAnchorPane;
 
-    Label[] labels = new Label[25];
-    TextField[] textFields = new TextField[25];
+    final static int utcIndex = 12, timeZonesNumber = 24;
+    int currentTimeZoneIndex;
 
-    SimpleDateFormat f = new SimpleDateFormat("HH:mm:ss");
+    Label[] labels = new Label[timeZonesNumber];
+    TextField[] textFields = new TextField[timeZonesNumber];
+
+    String[] TimeZoneAbbreviations = {
+            "NST", "SST", "AET", "JST", "CCT", "VST", "BST", "PLT",
+            "NET", "MSK", "EET", "ECT", "UTC", "CAT", "UTC -2", "BET",
+            "PRT", "EST", "CST", "PNT", "PST", "AST", "HST", "MIT"
+    };
+
+    SimpleDateFormat HHmmss = new SimpleDateFormat("HH:mm:ss");
     Timeline clock;
 
+    // Not used
     public String getUTCOffset()
     {
 
@@ -44,74 +52,78 @@ public class Controller {
         return "UTC " + (offsetInMillis >= 0 ? "+" : "-") + String.format("%02d", Math.abs(offsetInMillis / 3600000));
     }
 
-    public Label getLabelByTimeZone(String timeZone)
+    public String _trim(String string)
     {
+        return string.replaceAll("[^0-9?!.\\Q-+\\E]","");
+    }
+
+    public String getTrimmedNodeId(Node node)
+    {
+        return _trim(node.getId().substring(node.getId().length() - 3));
+    }
+
+    public int getTimeZoneIndex()
+    {
+
+        TimeZone timeZone = TimeZone.getDefault();
+        Calendar calendar = GregorianCalendar.getInstance(timeZone);
+        int offsetInMillis = timeZone.getOffset(calendar.getTimeInMillis());
+
+        String offset = "UTC " + (offsetInMillis >= 0 ? "+" : "-") + String.format("%02d", Math.abs(offsetInMillis / 3600000));
 
         Label result = null;
 
         for (Label curLabel : labels)
         {
-            if (timeZone.equals(curLabel.getText()))
+
+            String offsetTrimmed = _trim(offset.substring(offset.length() - 3));
+            String curLabelIdTrimmed = getTrimmedNodeId(curLabel);
+
+            if (Double.parseDouble(offsetTrimmed) == Double.parseDouble(curLabelIdTrimmed))
                 result = curLabel;
         }
 
-        return result;
+        for (int i = 0; i < labels.length; i++)
+            if (labels[i] == result)
+                return i;
+
+        return 12;
     }
 
-    public TextField getTextFieldByLabel(Label label)
-    {
-
-        TextField result = null;
-
-        for (TextField curTextField : textFields)
-        {
-            String labelID = label.getId().substring(label.getId().length() - 3);
-            String textFieldID = curTextField.getId().substring(curTextField.getId().length() - 3);
-
-            if (labelID.equals(textFieldID))
-                result = curTextField;
-        }
-
-        return result;
-    }
-
-    // TODO: getID functions
-    public void updateTextFields(TextField utcTextField)
+    public void updateTextFields()
     {
         for (TextField curTextField : textFields)
         {
-            String textFieldID = curTextField.getId().replaceAll("[^0-9?!.\\Q-\\E]","");
-            System.out.println(textFieldID);
-
-//            if (Double.parseDouble(textFieldID) < 0)
-                curTextField.setText(f.format(new Date()));
+            curTextField.setText(HHmmss.format(
+                    new Date(System.currentTimeMillis() +
+                            (3600 * (int)Double.parseDouble(_trim(curTextField.getId()))) * 1000))
+            );
         }
     }
 
-    public void initRightBorder()
+    public void initRightBorder(int timeZonesNumber)
     {
 
-        for (int i = 0; i < 25; i++)
+        for (int i = 0; i < timeZonesNumber; i++)
         {
 
             labels[i] = new Label("UTC " + ((12 - i) > 0 ? "+" : "") + (12 - i));
             labels[i].setId("tzLabel" + ((12 - i) > 0 ? "+" : "") + (12 - i));
             labels[i].setAlignment(Pos.CENTER_RIGHT);
-            labels[i].setLayoutX(0);
-            labels[i].setLayoutY(35 * i);
+            labels[i].setLayoutX(0); labels[i].setLayoutY(35 * i);
             labels[i].setPrefSize(50, 30);
+            labels[i].setText(TimeZoneAbbreviations[i]);
             AnchorPane.setLeftAnchor(labels[i], 0.0);
-
             spAnchorPane.getChildren().add(labels[i]);
 
             textFields[i] = new TextField();
             textFields[i].setId("tzTextField" + ((12 - i) > 0 ? "+" : "") + (12 - i));
-            textFields[i].setLayoutX(40);
-            textFields[i].setLayoutY(35 * i);
+            textFields[i].setLayoutX(40); textFields[i].setLayoutY(35 * i);
             textFields[i].setPrefSize(80, 30);
+            textFields[i].setEditable(false);
+            textFields[i].setAlignment(Pos.CENTER);
             AnchorPane.setLeftAnchor(textFields[i], 55.0);
             AnchorPane.setRightAnchor(textFields[i], 0.0);
-
             spAnchorPane.getChildren().add(textFields[i]);
 
             spAnchorPane.addEventHandler(MouseEvent.MOUSE_ENTERED, e ->
@@ -131,21 +143,20 @@ public class Controller {
     public void initialize()
     {
 
-        initRightBorder();
+        initRightBorder(timeZonesNumber);
+//        String offset = getUTCOffset();
 
-        String offset = getUTCOffset();
-        System.out.println(offset);
+        currentTimeZoneIndex = getTimeZoneIndex();
 
-        Label curLabel = getLabelByTimeZone(offset);
-        TextField curTextField = getTextFieldByLabel(curLabel);
-        curTextField.setStyle("-fx-background-color: rgba(255, 180, 255, 0.75);");
+        labels[currentTimeZoneIndex].setStyle("-fx-background-color: rgba(255, 180, 255, 0.75);");
+        textFields[currentTimeZoneIndex].setStyle("-fx-background-color: rgba(255, 180, 255, 0.75);");
 
-        f.setTimeZone(TimeZone.getTimeZone("UTC"));
+        HHmmss.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {
 
-            textFields[12].setText(f.format(new Date()));
-            updateTextFields(textFields[12]);
+            textFields[utcIndex].setText(HHmmss.format(new Date()));
+            updateTextFields();
 
         }), new KeyFrame(Duration.seconds(0.25)));
 
