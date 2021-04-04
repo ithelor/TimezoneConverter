@@ -6,12 +6,14 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
 import java.text.SimpleDateFormat;
@@ -26,13 +28,15 @@ public class Controller {
     @FXML ScrollPane scrollPane;
     @FXML AnchorPane spAnchorPane;
 
+    @FXML ImageView imageView;
+
     final static int utcIndex = 12, timeZonesNumber = 24;
     int currentTimeZoneIndex;
 
     Label[] labels = new Label[timeZonesNumber];
     TextField[] textFields = new TextField[timeZonesNumber];
 
-    String[] TimeZoneAbbreviations = {
+    String[] TimeZonesAbbreviations = {
             "NST", "SST", "AET", "JST", "CCT", "VST", "BST", "PLT",
             "NET", "MSK", "EET", "ECT", "UTC", "CAT", "UTC -2", "BET",
             "PRT", "EST", "CST", "PNT", "PST", "AST", "HST", "MIT"
@@ -112,7 +116,7 @@ public class Controller {
             labels[i].setAlignment(Pos.CENTER_RIGHT);
             labels[i].setLayoutX(0); labels[i].setLayoutY(35 * i);
             labels[i].setPrefSize(50, 30);
-            labels[i].setText(TimeZoneAbbreviations[i]);
+            labels[i].setText(TimeZonesAbbreviations[i]);
             AnchorPane.setLeftAnchor(labels[i], 0.0);
             spAnchorPane.getChildren().add(labels[i]);
 
@@ -140,11 +144,15 @@ public class Controller {
         }
     }
 
-    public void initialize()
-    {
+    public void initialize() {
 
         initRightBorder(timeZonesNumber);
 //        String offset = getUTCOffset();
+
+        Image image = new Image("resources/wm2_transparent.png");
+        imageView.setImage(image);
+        imageView.fitWidthProperty().bind(borderPane.widthProperty());
+        borderPane.setCenter(imageView);
 
         currentTimeZoneIndex = getTimeZoneIndex();
 
