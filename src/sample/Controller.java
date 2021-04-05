@@ -12,8 +12,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
 import java.text.SimpleDateFormat;
@@ -35,6 +33,7 @@ public class Controller {
 
     Label[] labels = new Label[timeZonesNumber];
     TextField[] textFields = new TextField[timeZonesNumber];
+    TextField[] dateFields = new TextField[timeZonesNumber];
 
     String[] TimeZonesAbbreviations = {
             "NST", "SST", "AET", "JST", "CCT", "VST", "BST", "PLT",
@@ -43,6 +42,7 @@ public class Controller {
     };
 
     SimpleDateFormat HHmmss = new SimpleDateFormat("HH:mm:ss");
+    SimpleDateFormat yyyyMMdd = new SimpleDateFormat("dd MMMM");
     Timeline clock;
 
     // Not used
@@ -96,11 +96,20 @@ public class Controller {
 
     public void updateTextFields()
     {
+
         for (TextField curTextField : textFields)
         {
             curTextField.setText(HHmmss.format(
                     new Date(System.currentTimeMillis() +
                             (3600 * (int)Double.parseDouble(_trim(curTextField.getId()))) * 1000))
+            );
+        }
+
+        for (TextField curDateField : dateFields)
+        {
+            curDateField.setText(yyyyMMdd.format(
+                    new Date(System.currentTimeMillis() +
+                            (3600 * (int)Double.parseDouble(_trim(curDateField.getId()))) * 1000))
             );
         }
     }
@@ -123,12 +132,22 @@ public class Controller {
             textFields[i] = new TextField();
             textFields[i].setId("tzTextField" + ((12 - i) > 0 ? "+" : "") + (12 - i));
             textFields[i].setLayoutX(40); textFields[i].setLayoutY(35 * i);
-            textFields[i].setPrefSize(80, 30);
+            textFields[i].setPrefSize(60, 30);
             textFields[i].setEditable(false);
             textFields[i].setAlignment(Pos.CENTER);
             AnchorPane.setLeftAnchor(textFields[i], 55.0);
-            AnchorPane.setRightAnchor(textFields[i], 0.0);
+//            AnchorPane.setRightAnchor(textFields[i], 80.0);
             spAnchorPane.getChildren().add(textFields[i]);
+
+            dateFields[i] = new TextField();
+            dateFields[i].setId("tzDateField" + ((12 - i) > 0 ? "+" : "") + (12 - i));
+            dateFields[i].setLayoutX(60); dateFields[i].setLayoutY(35 * i);
+            dateFields[i].setPrefSize(80, 30);
+            dateFields[i].setEditable(false);
+            dateFields[i].setAlignment(Pos.CENTER);
+            AnchorPane.setLeftAnchor(dateFields[i], 120.0);
+//            AnchorPane.setRightAnchor(dateFields[i], 0.0);
+            spAnchorPane.getChildren().add(dateFields[i]);
 
             spAnchorPane.addEventHandler(MouseEvent.MOUSE_ENTERED, e ->
             {
@@ -158,8 +177,10 @@ public class Controller {
 
         labels[currentTimeZoneIndex].setStyle("-fx-background-color: rgba(255, 180, 255, 0.75);");
         textFields[currentTimeZoneIndex].setStyle("-fx-background-color: rgba(255, 180, 255, 0.75);");
+        dateFields[currentTimeZoneIndex].setStyle("-fx-background-color: rgba(255, 180, 255, 0.75);");
 
         HHmmss.setTimeZone(TimeZone.getTimeZone("UTC"));
+        yyyyMMdd.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {
 

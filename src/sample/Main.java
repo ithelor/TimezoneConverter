@@ -16,7 +16,7 @@ public class Main extends Application {
 
         primaryStage.getIcons().add(new Image("resources/icon.png"));
         primaryStage.setTitle("Time Zone Converter");
-        primaryStage.setScene(new Scene(root, 1060, 490));
+        primaryStage.setScene(new Scene(root, 1100, 490));
         primaryStage.show();
 //        primaryStage.setResizable(false);
     }
